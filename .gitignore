@@ -1,0 +1,49 @@
+# Android Studio
+/.idea/
+/*.iml
+
+# Android specific
+.gradle/
+/local.properties
+/.cxx/
+/build/
+/captures/
+/.idea/
+/out/
+/generated/
+/.externalNativeBuild/
+/*.hprof
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Kotlin specific
+*.kotlin_metadata
+
+# Gradle
+.gradle/
+/build/
+/local.properties
+/.gradle/
+/*.log
+
+# Android Studio specific files
+*.iml
+.idea/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/libraries
+.idea/*.iws
+.idea/.name
+
+# Mac specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
+Desktop.ini
+
+# JetBrains specific
+.idea/
+*.iml
