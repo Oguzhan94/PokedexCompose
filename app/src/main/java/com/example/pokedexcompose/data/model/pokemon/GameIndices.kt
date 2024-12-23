@@ -1,6 +1,6 @@
 package com.example.pokedexcompose.data.model.pokemon
 
-data class Gameİndice(
-    val game_index: Int,
+data class GameIndices(
+    val gameIndex: Int,
     val version: Version
 )

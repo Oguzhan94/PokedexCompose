@@ -1,12 +1,12 @@
 package com.example.pokedexcompose.data.model.pokemon
 
 data class Versions(
-    val generation-i: Generationİ,
-    val generation-ii: Generationİi,
-    val generation-iii: Generationİii,
-    val generation-iv: Generationİv,
-    val generation-v: GenerationV,
-    val generation-vi: GenerationVi,
-    val generation-vii: GenerationVii,
-    val generation-viii: GenerationViii
+    val generationI: GenerationI,
+    val generationII: GenerationII,
+    val generationIII: GenerationIII,
+    val generationIV: GenerationIV,
+    val generationV: GenerationV,
+    val generationVI: GenerationVI,
+    val generationVII: GenerationVII,
+    val generationVIII: GenerationVIII
 )
