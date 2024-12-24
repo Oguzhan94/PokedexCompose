@@ -7,17 +7,18 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.04.01"
+composeBom = "2024.11.00"
 hiltVersion = "2.51.1"
+kspVersion = "2.0.0-1.0.21"
 retrofitVersion = "2.11.0"
 gsonVersion = "2.11.0"
 okHttpVersion = "4.12.0"
 gsonConverterVersion = "2.11.0"
 nav_version = "2.8.4"
 nav_compose_hilt_version = "1.2.0"
-kspVersion = "2.0.0-1.0.21"
-paging_version = "3.3.4"
 coil_version = "3.0.4"
+paging_version = "3.3.4"
+paletteKtx = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,7 @@ paging = { group = "androidx.paging", name = "paging-runtime", version.ref = "pa
 paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging_version" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil_version" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil_version" }
+androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 
 
 [plugins]

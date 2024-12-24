@@ -9,23 +9,27 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.pokedexcompose.data.model.PokedexListEntry
 import com.example.pokedexcompose.presentation.detailScreen.PokemonDetailScreen
 import com.example.pokedexcompose.presentation.listScreen.PokemonListScreen
 
 @Composable
-fun NavigationComponent(){
+fun NavigationComponent() {
     val navController = rememberNavController()
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ){
-            NavHost(navController = navController, startDestination = "listScreen"){
+        ) {
+            NavHost(navController = navController, startDestination = "listScreen") {
                 composable("listScreen") {
-                    PokemonListScreen()
+                    PokemonListScreen(navController = navController)
                 }
-                composable("detailScreen"){
+                composable("detailScreen") {
+                    val pokemon = navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<PokedexListEntry>("pokemon")
                     PokemonDetailScreen()
                 }
             }

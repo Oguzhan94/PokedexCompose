@@ -1,6 +1,7 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.pokedexcompose.presentation.listScreen
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +15,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -39,33 +53,72 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
+import coil3.toBitmap
 import com.example.pokedexcompose.R
 import com.example.pokedexcompose.data.model.PokedexListEntry
 
 @Composable
 fun PokemonListScreen(
-    viewModel: ListScreenViewModel = hiltViewModel()
+    viewModel: ListScreenViewModel = hiltViewModel(),
+    navController: NavController,
 ) {
+    val uiState by viewModel.uiState
+    val searchQuery by viewModel.searchQuery.collectAsState()
     val pokemonPagingItems = viewModel.pokemonList.collectAsLazyPagingItems()
 
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
         Spacer(modifier = Modifier.height(15.dp))
+        Header()
+        Spacer(modifier = Modifier.height(10.dp))
+        SearchSection(searchQuery = searchQuery) { query ->
+            viewModel.updateSearchQuery(query)
+        }
+        Spacer(modifier = Modifier.height(50.dp))
 
+        when {
+            searchQuery.isEmpty() -> PagingListSection(
+                pagingItems = pokemonPagingItems,
+                navController = navController,
+                viewModel = viewModel
+            )
 
-        PagingListSection(
-            pagingItems = pokemonPagingItems,
-            viewModel = viewModel
-        )
-
+            else -> SearchResultSection(
+                uiState = uiState,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
     }
+}
 
+@Composable
+fun SearchSection(searchQuery: String, onQueryChange: (String) -> Unit) {
+    SearchBar(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = searchQuery,
+                onQueryChange = onQueryChange,
+                onSearch = {},
+                expanded = false,
+                onExpandedChange = {},
+                placeholder = { Text("Input Pokemon name") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            )
+        },
+        expanded = false,
+        onExpandedChange = {},
+    ) {}
 }
 
 @Composable
 fun PagingListSection(
     pagingItems: LazyPagingItems<PokedexListEntry>,
+    navController: NavController,
     viewModel: ListScreenViewModel
 ) {
     pagingItems.apply {
@@ -82,12 +135,45 @@ fun PagingListSection(
                     val pokemon = pagingItems[index]
                     pokemon?.let {
                         CardItem(
-                            pokemon = it
+                            pokemon = it,
+                            navController = navController,
+                            viewModel = viewModel
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SearchResultSection(
+    uiState: ListScreenViewModel.HomeUiState,
+    navController: NavController,
+    viewModel: ListScreenViewModel
+) {
+    when (uiState) {
+        is ListScreenViewModel.HomeUiState.Loading -> LoadingIndicator()
+
+        is ListScreenViewModel.HomeUiState.Success -> {
+            val pokemonList = uiState.data
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(pokemonList) { pokemon ->
+                    CardItem(
+                        pokemon = pokemon,
+                        navController,
+                        viewModel = viewModel
+                    )
+                }
+            }
+        }
+
+        is ListScreenViewModel.HomeUiState.Error -> ErrorMessage(uiState.message)
     }
 }
 
@@ -116,22 +202,45 @@ fun ErrorMessage(message: String?) {
 }
 
 @Composable
+fun Header() {
+    Column(
+        modifier = Modifier.padding(start = 16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            text = "POKEDEX",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Search for a Pokémon")
+    }
+}
+
+
+@Composable
 fun CardItem(
     pokemon: PokedexListEntry,
-    modifier: Modifier = Modifier
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    viewModel: ListScreenViewModel
 ) {
+    var dominantColor by remember { mutableStateOf(Color.Gray) }
     Card(
         modifier = modifier
             .padding(6.dp)
             .fillMaxWidth()
-            .clickable {}
+            .clickable {
+                navController.currentBackStackEntry?.savedStateHandle?.set("pokemon", pokemon)
+                navController.navigate("pokemonDetail")
+            }
             .aspectRatio(1f),
         shape = RoundedCornerShape(16.dp),
         colors = CardColors(
-            containerColor = Color.LightGray,
-            contentColor = Color.LightGray,
-            disabledContentColor = Color.LightGray,
-            disabledContainerColor = Color.LightGray
+            containerColor = dominantColor,
+            contentColor = dominantColor,
+            disabledContentColor = dominantColor,
+            disabledContainerColor = dominantColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -146,14 +255,11 @@ fun CardItem(
                 .crossfade(true)
                 .allowHardware(false)
                 .listener(
-                    onStart = {
-                        // Handle the onStart event
-                    },
-                    onSuccess = { request, metadata ->
-                        Log.d("Error", "Error: ${metadata.image}")
-                    },
-                    onError = { request, throwable ->
-                        Log.d("Error", "Error: ${throwable.throwable}")
+                    onSuccess = { _, result ->
+                        val bitmap = result.image.toBitmap()
+                        viewModel.extractDominantColor(bitmap) { color ->
+                            dominantColor = color
+                        }
                     }
                 )
                 .build(),

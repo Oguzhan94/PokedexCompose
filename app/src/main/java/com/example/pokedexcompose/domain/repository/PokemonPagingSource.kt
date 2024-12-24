@@ -5,6 +5,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.pokedexcompose.data.model.PokedexListEntry
 import com.example.pokedexcompose.data.network.PokeApi
+import com.example.pokedexcompose.domain.toPokeDexListEntry
 
 //paging library. daha once bilmiyordum!!, sayfalama yapmak icin kullan.
 class PokemonPagingSource(
@@ -19,7 +20,7 @@ class PokemonPagingSource(
             val response = pokemonApi.getPokemonList(
                 offset = page * pageSize,
             )
-            val pokeDexEntries = response.results.map { it.toPokedexListEntry() }
+            val pokeDexEntries = response.results.map { it.toPokeDexListEntry() }
             Log.d("PokemonPagingSource", "Response: $response")
             LoadResult.Page(
                 data = pokeDexEntries,
