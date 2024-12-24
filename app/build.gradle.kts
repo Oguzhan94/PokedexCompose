@@ -73,4 +73,12 @@ dependencies {
 
     //compose
     implementation(libs.compose.navigation)
+
+    //paging
+    implementation(libs.paging)
+    implementation(libs.paging.compose)
+
+    //coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 }
