@@ -1,7 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 
 package com.example.pokedexcompose.presentation.listScreen
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,9 +61,10 @@ import com.example.pokedexcompose.R
 import com.example.pokedexcompose.data.model.PokedexListEntry
 
 @Composable
-fun PokemonListScreen(
+fun SharedTransitionScope.PokemonListScreen(
     viewModel: ListScreenViewModel = hiltViewModel(),
     navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val uiState by viewModel.uiState
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -81,13 +85,15 @@ fun PokemonListScreen(
             searchQuery.isEmpty() -> PagingListSection(
                 pagingItems = pokemonPagingItems,
                 navController = navController,
-                viewModel = viewModel
+                viewModel = viewModel,
+                animatedVisibilityScope = animatedVisibilityScope
             )
 
             else -> SearchResultSection(
                 uiState = uiState,
                 navController = navController,
-                viewModel = viewModel
+                viewModel = viewModel,
+                animatedVisibilityScope = animatedVisibilityScope
             )
         }
     }
@@ -116,10 +122,11 @@ fun SearchSection(searchQuery: String, onQueryChange: (String) -> Unit) {
 }
 
 @Composable
-fun PagingListSection(
+fun SharedTransitionScope.PagingListSection(
     pagingItems: LazyPagingItems<PokedexListEntry>,
     navController: NavController,
-    viewModel: ListScreenViewModel
+    viewModel: ListScreenViewModel,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     pagingItems.apply {
         when (loadState.refresh) {
@@ -137,7 +144,8 @@ fun PagingListSection(
                         CardItem(
                             pokemon = it,
                             navController = navController,
-                            viewModel = viewModel
+                            viewModel = viewModel,
+                            animatedVisibilityScope = animatedVisibilityScope
                         )
                     }
                 }
@@ -147,10 +155,11 @@ fun PagingListSection(
 }
 
 @Composable
-fun SearchResultSection(
+fun SharedTransitionScope.SearchResultSection(
     uiState: ListScreenViewModel.HomeUiState,
     navController: NavController,
-    viewModel: ListScreenViewModel
+    viewModel: ListScreenViewModel,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     when (uiState) {
         is ListScreenViewModel.HomeUiState.Loading -> LoadingIndicator()
@@ -167,7 +176,8 @@ fun SearchResultSection(
                     CardItem(
                         pokemon = pokemon,
                         navController,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        animatedVisibilityScope = animatedVisibilityScope
                     )
                 }
             }
@@ -218,11 +228,12 @@ fun Header() {
 }
 
 @Composable
-fun CardItem(
+fun SharedTransitionScope.CardItem(
     pokemon: PokedexListEntry,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: ListScreenViewModel
+    viewModel: ListScreenViewModel,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     var dominantColor by remember { mutableStateOf(Color.Gray) }
     Card(
@@ -248,7 +259,11 @@ fun CardItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(8.dp),
+                .padding(8.dp)
+                .sharedElement(
+                    rememberSharedContentState(key = "image-${pokemon.number}"),
+                    animatedVisibilityScope = animatedVisibilityScope
+                ),
             model = ImageRequest.Builder(LocalContext.current)
                 .data(pokemon.imageUrl)
                 .crossfade(true)
@@ -267,13 +282,17 @@ fun CardItem(
             error = painterResource(R.drawable.ic_launcher_foreground)
         )
         Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+                .sharedElement(
+                    state = rememberSharedContentState(key = "text-${pokemon.number}"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                ),
             text = pokemon.pokemonName,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             color = Color.White,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp),
             textAlign = TextAlign.Center
         )
     }

@@ -1,6 +1,10 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.example.pokedexcompose.presentation.detailScreen
 
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -56,11 +60,11 @@ import com.example.pokedexcompose.utils.getPokemonColor
 import com.example.pokedexcompose.utils.getPokemonStatColor
 
 @Composable
-fun PokemonDetailScreen(
+fun SharedTransitionScope.PokemonDetailScreen(
     pokemon: PokedexListEntry,
     viewModel: PokemonDetailViewModel = hiltViewModel(),
-    animatedVisibilityScope: AnimatedVisibilityScope,
     navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val uiState by viewModel.uiState
     var dominantColor by remember { mutableStateOf(Color.Gray) }
@@ -74,13 +78,17 @@ fun PokemonDetailScreen(
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.8f)),
     ) {
-        Header(pokemon, viewModel, dominantColor, navController) { color ->
+        Header(pokemon, viewModel, dominantColor, navController, animatedVisibilityScope) { color ->
             dominantColor = color
         }
         Spacer(modifier = Modifier.height(15.dp))
         Text(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .sharedElement(
+                    state = rememberSharedContentState(key = "text-${pokemon.number}"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                ),
             textAlign = TextAlign.Center,
             fontSize = 35.sp,
             fontWeight = FontWeight.Bold,
@@ -109,12 +117,13 @@ fun PokemonDetailScreen(
 
 
 @Composable
-fun Header(
+fun SharedTransitionScope.Header(
     pokemon: PokedexListEntry,
     viewModel: PokemonDetailViewModel,
     dominantColor: Color,
     navController: NavController,
-    onDominantColorChange: (Color) -> Unit,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onDominantColorChange: (Color) -> Unit
 ) {
     val shape = RoundedCornerShape(
         topStart = 0.dp,
@@ -163,7 +172,11 @@ fun Header(
         AsyncImage(
             modifier = Modifier
                 .padding(20.dp)
-                .size(200.dp),
+                .size(200.dp)
+                .sharedElement(
+                    rememberSharedContentState(key = "image-${pokemon.number}"),
+                    animatedVisibilityScope = animatedVisibilityScope
+                ),
             model = ImageRequest.Builder(LocalContext.current)
                 .data(pokemon.imageUrl)
                 .crossfade(true)

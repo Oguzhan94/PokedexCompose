@@ -83,5 +83,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
 
+    //palette
     implementation(libs.androidx.palette.ktx)
+
+    //animation
+    implementation(libs.androidx.compose.animation)
 }

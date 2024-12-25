@@ -19,6 +19,7 @@ nav_compose_hilt_version = "1.2.0"
 coil_version = "3.0.4"
 paging_version = "3.3.4"
 paletteKtx = "1.0.0"
+androidxCompose = "1.7.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -49,6 +50,7 @@ paging-compose = { group = "androidx.paging", name = "paging-compose", version.r
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil_version" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil_version" }
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "androidxCompose" }
 
 
 [plugins]
