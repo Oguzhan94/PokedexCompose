@@ -217,7 +217,6 @@ fun Header() {
     }
 }
 
-
 @Composable
 fun CardItem(
     pokemon: PokedexListEntry,
@@ -232,7 +231,7 @@ fun CardItem(
             .fillMaxWidth()
             .clickable {
                 navController.currentBackStackEntry?.savedStateHandle?.set("pokemon", pokemon)
-                navController.navigate("pokemonDetail")
+                navController.navigate("detailScreen")
             }
             .aspectRatio(1f),
         shape = RoundedCornerShape(16.dp),

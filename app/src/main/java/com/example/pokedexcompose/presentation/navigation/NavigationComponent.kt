@@ -30,7 +30,13 @@ fun NavigationComponent() {
                     val pokemon = navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.get<PokedexListEntry>("pokemon")
-                    PokemonDetailScreen()
+                    pokemon?.let {
+                        PokemonDetailScreen(
+                            pokemon = it,
+                            animatedVisibilityScope = this,
+                            navController = navController
+                        )
+                    }
                 }
             }
         }
