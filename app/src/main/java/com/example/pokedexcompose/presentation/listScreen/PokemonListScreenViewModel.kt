@@ -29,7 +29,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class ListScreenViewModel @Inject constructor(
+class PokemonListScreenViewModel @Inject constructor(
     private val repository: PokemonRepository
 ) : ViewModel() {
 

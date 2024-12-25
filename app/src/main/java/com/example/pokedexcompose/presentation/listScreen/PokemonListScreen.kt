@@ -1,10 +1,14 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 
 package com.example.pokedexcompose.presentation.listScreen
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,7 +66,7 @@ import com.example.pokedexcompose.data.model.PokedexListEntry
 
 @Composable
 fun SharedTransitionScope.PokemonListScreen(
-    viewModel: ListScreenViewModel = hiltViewModel(),
+    viewModel: PokemonListScreenViewModel = hiltViewModel(),
     navController: NavController,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
@@ -70,8 +74,12 @@ fun SharedTransitionScope.PokemonListScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val pokemonPagingItems = viewModel.pokemonList.collectAsLazyPagingItems()
 
+    //animasyon calismiyor, farkli bir cozum ara
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .padding(16.dp)
     ) {
         Spacer(modifier = Modifier.height(15.dp))
         Header()
@@ -125,7 +133,7 @@ fun SearchSection(searchQuery: String, onQueryChange: (String) -> Unit) {
 fun SharedTransitionScope.PagingListSection(
     pagingItems: LazyPagingItems<PokedexListEntry>,
     navController: NavController,
-    viewModel: ListScreenViewModel,
+    viewModel: PokemonListScreenViewModel,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     pagingItems.apply {
@@ -156,15 +164,15 @@ fun SharedTransitionScope.PagingListSection(
 
 @Composable
 fun SharedTransitionScope.SearchResultSection(
-    uiState: ListScreenViewModel.HomeUiState,
+    uiState: PokemonListScreenViewModel.HomeUiState,
     navController: NavController,
-    viewModel: ListScreenViewModel,
+    viewModel: PokemonListScreenViewModel,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     when (uiState) {
-        is ListScreenViewModel.HomeUiState.Loading -> LoadingIndicator()
+        is PokemonListScreenViewModel.HomeUiState.Loading -> LoadingIndicator()
 
-        is ListScreenViewModel.HomeUiState.Success -> {
+        is PokemonListScreenViewModel.HomeUiState.Success -> {
             val pokemonList = uiState.data
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -183,7 +191,7 @@ fun SharedTransitionScope.SearchResultSection(
             }
         }
 
-        is ListScreenViewModel.HomeUiState.Error -> ErrorMessage(uiState.message)
+        is PokemonListScreenViewModel.HomeUiState.Error -> ErrorMessage(uiState.message)
     }
 }
 
@@ -220,10 +228,14 @@ fun Header() {
         Text(
             text = "POKEDEX",
             fontSize = 30.sp,
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
+            color = Color.White
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Search for a Pokémon")
+        Text(
+            text = "Search for a Pokémon",
+            color = Color.White,
+        )
     }
 }
 
@@ -232,7 +244,7 @@ fun SharedTransitionScope.CardItem(
     pokemon: PokedexListEntry,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: ListScreenViewModel,
+    viewModel: PokemonListScreenViewModel,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     var dominantColor by remember { mutableStateOf(Color.Gray) }
