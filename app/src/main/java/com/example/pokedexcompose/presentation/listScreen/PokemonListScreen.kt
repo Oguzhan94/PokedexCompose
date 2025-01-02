@@ -63,6 +63,7 @@ import coil3.request.crossfade
 import coil3.toBitmap
 import com.example.pokedexcompose.R
 import com.example.pokedexcompose.data.model.PokedexListEntry
+import com.example.pokedexcompose.presentation.extensions.extractDominantColor
 
 @Composable
 fun SharedTransitionScope.PokemonListScreen(
@@ -70,7 +71,7 @@ fun SharedTransitionScope.PokemonListScreen(
     navController: NavController,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    val uiState by viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val pokemonPagingItems = viewModel.pokemonList.collectAsLazyPagingItems()
 
@@ -93,14 +94,12 @@ fun SharedTransitionScope.PokemonListScreen(
             searchQuery.isEmpty() -> PagingListSection(
                 pagingItems = pokemonPagingItems,
                 navController = navController,
-                viewModel = viewModel,
                 animatedVisibilityScope = animatedVisibilityScope
             )
 
             else -> SearchResultSection(
                 uiState = uiState,
                 navController = navController,
-                viewModel = viewModel,
                 animatedVisibilityScope = animatedVisibilityScope
             )
         }
@@ -133,7 +132,6 @@ fun SearchSection(searchQuery: String, onQueryChange: (String) -> Unit) {
 fun SharedTransitionScope.PagingListSection(
     pagingItems: LazyPagingItems<PokedexListEntry>,
     navController: NavController,
-    viewModel: PokemonListScreenViewModel,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     pagingItems.apply {
@@ -152,7 +150,6 @@ fun SharedTransitionScope.PagingListSection(
                         CardItem(
                             pokemon = it,
                             navController = navController,
-                            viewModel = viewModel,
                             animatedVisibilityScope = animatedVisibilityScope
                         )
                     }
@@ -166,7 +163,6 @@ fun SharedTransitionScope.PagingListSection(
 fun SharedTransitionScope.SearchResultSection(
     uiState: PokemonListScreenViewModel.HomeUiState,
     navController: NavController,
-    viewModel: PokemonListScreenViewModel,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     when (uiState) {
@@ -184,7 +180,6 @@ fun SharedTransitionScope.SearchResultSection(
                     CardItem(
                         pokemon = pokemon,
                         navController,
-                        viewModel = viewModel,
                         animatedVisibilityScope = animatedVisibilityScope
                     )
                 }
@@ -209,12 +204,20 @@ fun LoadingIndicator() {
 fun ErrorMessage(message: String?) {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
-        Text(
-            text = message ?: "An error occurred.",
-            color = Color.Red,
-            textAlign = TextAlign.Center
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(message)
+                .crossfade(true)
+                .allowHardware(false)
+                .build(),
+            contentDescription = "${message} Image",
+            contentScale = ContentScale.Fit,
+            error = painterResource(R.drawable.ic_launcher_foreground)
         )
     }
 }
@@ -244,7 +247,6 @@ fun SharedTransitionScope.CardItem(
     pokemon: PokedexListEntry,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: PokemonListScreenViewModel,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     var dominantColor by remember { mutableStateOf(Color.Gray) }
@@ -266,7 +268,6 @@ fun SharedTransitionScope.CardItem(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
@@ -282,9 +283,8 @@ fun SharedTransitionScope.CardItem(
                 .allowHardware(false)
                 .listener(
                     onSuccess = { _, result ->
-                        val bitmap = result.image.toBitmap()
-                        viewModel.extractDominantColor(bitmap) { color ->
-                            dominantColor = color
+                        result.image.toBitmap().extractDominantColor {
+                            dominantColor = it
                         }
                     }
                 )

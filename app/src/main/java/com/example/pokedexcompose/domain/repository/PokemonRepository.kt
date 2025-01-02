@@ -33,7 +33,13 @@ class PokemonRepository @Inject constructor(
             val response = pokemonApi.getPokemonInfo(pokemonName)
             emit(Resource.Success(response))
         }.catch {
-            emit(Resource.Error(it.message))
+            val errorImageUrl = when {
+                it.message?.contains("HTTP 404") == true -> "https://http.cat/404.jpg"
+                it.message?.contains("HTTP 500") == true -> "https://http.cat/500.jpg"
+                it.message?.contains("HTTP 400") == true -> "https://http.cat/400.jpg"
+                else -> "https://http.cat/unknown.jpg"
+            }
+            emit(Resource.Error(errorImageUrl))
         }
     }
 }

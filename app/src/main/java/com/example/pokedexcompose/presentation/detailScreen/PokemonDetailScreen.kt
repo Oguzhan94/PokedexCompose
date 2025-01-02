@@ -56,8 +56,10 @@ import coil3.toBitmap
 import com.example.pokedexcompose.R
 import com.example.pokedexcompose.data.model.PokedexListEntry
 import com.example.pokedexcompose.data.model.pokemon.Pokemon
+import com.example.pokedexcompose.presentation.extensions.extractDominantColor
 import com.example.pokedexcompose.utils.getPokemonColor
 import com.example.pokedexcompose.utils.getPokemonStatColor
+import java.util.Locale
 
 @Composable
 fun SharedTransitionScope.PokemonDetailScreen(
@@ -78,7 +80,7 @@ fun SharedTransitionScope.PokemonDetailScreen(
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.8f)),
     ) {
-        Header(pokemon, viewModel, dominantColor, navController, animatedVisibilityScope) { color ->
+        Header(pokemon, dominantColor, navController, animatedVisibilityScope) { color ->
             dominantColor = color
         }
         Spacer(modifier = Modifier.height(15.dp))
@@ -119,7 +121,6 @@ fun SharedTransitionScope.PokemonDetailScreen(
 @Composable
 fun SharedTransitionScope.Header(
     pokemon: PokedexListEntry,
-    viewModel: PokemonDetailViewModel,
     dominantColor: Color,
     navController: NavController,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -183,9 +184,8 @@ fun SharedTransitionScope.Header(
                 .allowHardware(false)
                 .listener(
                     onSuccess = { _, result ->
-                        val bitmap = result.image.toBitmap()
-                        viewModel.extractDominantColor(bitmap) { color ->
-                            onDominantColorChange(color)
+                        result.image.toBitmap().extractDominantColor {
+                            onDominantColorChange(it)
                         }
                     }
                 )
@@ -259,7 +259,7 @@ fun PokePhysicalType(pokeDetail: Pokemon) {
                 color = Color.White
             )
             Text(
-                text = String.format("%.1f M", pokeDetail.height.toFloat() / 10),
+                text = String.format(Locale.US, "%.1f M", pokeDetail.height.toFloat() / 10),
                 color = Color.White
             )
         }
@@ -274,7 +274,7 @@ fun PokePhysicalType(pokeDetail: Pokemon) {
                 color = Color.White
             )
             Text(
-                text = String.format("%.1f KG", pokeDetail.weight.toFloat() / 10),
+                text = String.format(Locale.US, "%.1f KG", pokeDetail.weight.toFloat() / 10),
                 color = Color.White
             )
         }

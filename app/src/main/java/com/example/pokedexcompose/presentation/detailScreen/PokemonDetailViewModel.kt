@@ -3,19 +3,13 @@ package com.example.pokedexcompose.presentation.detailScreen
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.palette.graphics.Palette
-import coil3.Bitmap
 import com.example.pokedexcompose.data.model.pokemon.Pokemon
 import com.example.pokedexcompose.domain.Resource
 import com.example.pokedexcompose.domain.repository.PokemonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,16 +36,6 @@ class PokemonDetailViewModel @Inject constructor(
                         }
                     }
                 }
-        }
-    }
-
-    fun extractDominantColor(bitmap: Bitmap, onColorReady: (Color) -> Unit) {
-        viewModelScope.launch {
-            val palette = Palette.from(bitmap).generate()
-            val dominantColor = palette.getDominantColor(Color.Gray.toArgb())
-            withContext(Dispatchers.Main) {
-                onColorReady(Color(dominantColor))
-            }
         }
     }
 
